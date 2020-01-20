@@ -13,14 +13,15 @@
 #include "ResourceFormat.h"
 
 #include <sstream>
+#include <algorithm>
 
 namespace Util {
 
 //------------------
 
-const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t components, bool normalized, uint32_t internalType) {
+const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint16_t vecSize, uint16_t colSize, uint32_t arraySize, bool normalized, uint32_t internalType) {
 	size_t offset = align(size, attributeAlignment);
-	attributes.emplace_back(std::move(AttributeFormat(nameId, type, components, normalized, internalType, offset)));
+	attributes.emplace_back(std::move(AttributeFormat(nameId, type, vecSize, colSize, arraySize, normalized, internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 	return attributes.back();
 }
@@ -28,8 +29,8 @@ const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& n
 //------------------
 
 
-const AttributeFormat& ResourceFormat::_appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t components, bool normalized, uint32_t internalType, size_t offset) {
-	attributes.emplace_back(std::move(AttributeFormat(nameId, type, components, normalized, internalType, offset)));
+const AttributeFormat& ResourceFormat::_appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint16_t vecSize, uint16_t colSize, uint32_t arraySize, bool normalized, uint32_t internalType, size_t offset) {
+	attributes.emplace_back(std::move(AttributeFormat(nameId, type, vecSize, colSize, arraySize, normalized, internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 	return attributes.back();
 }
@@ -76,7 +77,7 @@ void ResourceFormat::updateAttribute(const AttributeFormat& attr) {
 	for(auto it = attributes.begin(); it != attributes.end(); ++it) {
 		AttributeFormat& currentAttr = *it;
 		if(currentAttr.getNameId() == attr.getNameId()) {
-			currentAttr = AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.components, attr.normalized, attr.internalType, currentAttr.offset);
+			currentAttr = AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.vecSize, attr.colSize, attr.arraySize, attr.normalized, attr.internalType, currentAttr.offset);
 			size = static_cast<std::size_t>(currentAttr.getOffset() + currentAttr.getDataSize());
 
 			// Update the offsets.
@@ -92,7 +93,7 @@ void ResourceFormat::updateAttribute(const AttributeFormat& attr) {
 	}
 	// AttributeFormat was not found.
 	size_t offset = align(size, attributeAlignment);
-	attributes.emplace_back(std::move(AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.components, attr.normalized, attr.internalType, offset)));
+	attributes.emplace_back(std::move(AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.vecSize, attr.colSize, attr.arraySize, attr.normalized, attr.internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 }
 

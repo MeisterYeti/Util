@@ -26,7 +26,7 @@ namespace Util {
 class AttributeFormat {
 public:
 	AttributeFormat();
-	AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint32_t _components=1, bool _normalized=false, uint32_t _internalType=0, size_t _offset=0);
+	AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _vecSize=1, uint16_t _colSize=1, uint32_t _arraySize=1, bool _normalized=false, uint32_t _internalType=0, size_t _offset=0);
 
 	bool operator==(const AttributeFormat& other) const;
 	bool operator!=(const AttributeFormat& other) const { return !(*this==other); };
@@ -41,7 +41,13 @@ public:
 	//! Returns the size (in bytes) of the entire attribute.
 	size_t getDataSize() const { return dataSize; }
 	//! Returns the number of components of the attribute.
-	uint32_t getComponentCount() const { return components; }
+	uint32_t getComponentCount() const { return vecSize*colSize*arraySize; }
+	//! Returns the number of array elements in the attribute.
+	uint32_t getArraySize() const { return arraySize; }
+	//! Returns the vector size of the attribute (for vector types, e.g., Vec3).
+	uint16_t getVectorSize() const { return vecSize; }
+	//! Returns the column size of the attribute (for matrix types, e.g., Matrix3x3).
+	uint16_t getColumnSize() const { return colSize; }
 	//! Specifies if the underlying type is automatically converted to/from float value in the range [-1.0,1.0] or [0.0,1.0]
 	bool isNormalized() const { return normalized; }
 	//! Returns the user defined internal type id of the attribute (e.g., for compressed data).
@@ -50,7 +56,7 @@ public:
 	size_t getOffset() const { return offset; }
 
 	//! Returns @p true, if the attribute has at least one value
-	bool isValid() const { return components != 0; }
+	bool isValid() const { return arraySize > 0; }
 	//! Returns a string representation of this attribute
 	std::string toString() const;
 
@@ -59,20 +65,22 @@ public:
 	//! deprecated alias
 	[[deprecated]] uint16_t getBytesPerPixel() const { return dataSize; }
 	//! deprecated alias
-	[[deprecated]] uint32_t getNumValues() const { return components; }
+	[[deprecated]] uint32_t getNumValues() const { return vecSize*colSize*arraySize; }
 	//! deprecated alias
-	[[deprecated]] uint32_t getNumComponents() const { return components; }
+	[[deprecated]] uint32_t getNumComponents() const { return vecSize*colSize*arraySize; }
 	//! deprecated alias
-	[[deprecated]] bool empty() const { return components == 0; }
+	[[deprecated]] bool empty() const { return arraySize == 0; }
 private:
 	friend class ResourceFormat;
-	AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, size_t _offset);
+	AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint16_t _vecSize, uint16_t _colSize, uint32_t _arraySize, bool _normalized, uint32_t _internalType, size_t _offset);
 	
 	StringIdentifier nameId;
 	TypeConstant dataType;
-	uint16_t dataSize;
+	size_t dataSize;
 	size_t offset;
-	uint32_t components;
+	uint32_t arraySize;
+	uint16_t vecSize;
+	uint16_t colSize;
 	bool normalized;
 	uint32_t internalType;
 };
@@ -83,7 +91,9 @@ template <> struct std::hash<Util::AttributeFormat> {
 	std::size_t operator()(const Util::AttributeFormat& format) const {
 		std::size_t result = format.getNameId().getValue();
 		Util::hash_combine(result, format.getDataType());
-		Util::hash_combine(result, format.getComponentCount());
+		Util::hash_combine(result, format.getArraySize());
+		Util::hash_combine(result, format.getVectorSize());
+		Util::hash_combine(result, format.getColumnSize());
 		Util::hash_combine(result, format.isNormalized());
 		Util::hash_combine(result, format.getInternalType());
 		Util::hash_combine(result, format.getOffset());

@@ -37,33 +37,85 @@ public:
 	/*! Create and add a new attribute to the ResourceFormat.
 		@param nameId The name of the attribute.
 		@param type The base type of the attribute.
-		@param numValue The number of channels the attribute has (e.g., 3 for RGB)
+		@param vecSize The number of channels the attribute has (e.g., 3 for RGB or Vec3).
+		@param colSize The number of columns for matrix types (e.g., 3 for Matrix3x3).
+		@param arraySize The number of elements in an array of the attribute type.
 		@param normalized Specifies that the underlying type is automatically converted to/from float value in the range [-1.0,1.0] or [0.0,1.0]
 		@param internalType User defined internal type id (e.g., for compressed data). 
 		@return the new attribute
 		@note the owner of the attribute is the ResourceFormat
 		@note Before using this function, check a default method can be used instead (e.g. @p appendFloat)
-		@note When @p internalType is set, the @p type and @p numValues are still used for size calculation, 
-		e.g., if a R10G10B10A2 attribute is packed into a single 32 bit integer, the numValues should be 1.
+		@note When @p internalType is set, the @p type, @p vecSize, @p colSize and @p arraySize are still used for size calculation, 
+		e.g., if a R10G10B10A2 attribute is packed into a single 32 bit integer, the @p vecSize should be 1.
 	*/
-	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized=false, uint32_t internalType=0);
+	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint16_t vecSize=1, uint16_t colSize=1, uint32_t arraySize=1, bool normalized=false, uint32_t internalType=0);
+
+	//! @see appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint16_t vecSize=1, uint16_t colSize=1, uint32_t arraySize=1, bool normalized=false, uint32_t internalType=0)
+	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint16_t vecSize=1, bool normalized=false, uint32_t internalType=0) {
+		return appendAttribute(nameId, type, vecSize, 1, 1, normalized, internalType);
+	}
 
 	//! directly appends the attribute without recalculating offsets
-	const Attribute& _appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized, uint32_t internalType, size_t offset);
-		
+	const Attribute& _appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint16_t vecSize, uint16_t colSize, uint32_t arraySize, bool normalized, uint32_t internalType, size_t offset);
+	
 	//! Add an attribute with the given name and the given number of float values.
-	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint32_t numValues, bool normalized=false) {
-		return appendAttribute(nameId, TypeConstant::FLOAT, numValues, normalized);
+	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::FLOAT, 1, 1, arraySize, normalized);
+	}
+
+	//! Add a float vector attribute.
+	const Attribute & appendFloatVec(const Util::StringIdentifier& nameId, uint16_t components, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::FLOAT, components, 1, arraySize, normalized);
+	}
+
+	//! Add a 2d float vector attribute.
+	const Attribute & appendVec2(const Util::StringIdentifier& nameId, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::FLOAT, 2, 1, arraySize, normalized);
+	}
+
+	//! Add a 3d float vector attribute.
+	const Attribute & appendVec3(const Util::StringIdentifier& nameId, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::FLOAT, 3, 1, arraySize, normalized);
+	}
+
+	//! Add a 4d float vector attribute.
+	const Attribute & appendVec4(const Util::StringIdentifier& nameId, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::FLOAT, 4, 1, arraySize, normalized);
+	}
+
+	//! Add a float matrix attribute.
+	const Attribute & appendFloatMat(const Util::StringIdentifier& nameId, uint16_t rows, uint16_t columns, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::FLOAT, rows, columns, arraySize, normalized);
+	}
+	
+	//! Add a 3x3 float matrix attribute.
+	const Attribute & appendMat3(const Util::StringIdentifier& nameId, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::FLOAT, 3, 3, arraySize, normalized);
+	}
+	
+	//! Add a 4x4 float matrix attribute.
+	const Attribute & appendMat4(const Util::StringIdentifier& nameId, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::FLOAT, 4, 4, arraySize, normalized);
 	}
 
 	//! Add an attribute with the given name and the given number of unsigned int values.
-	const Attribute & appendUInt(const Util::StringIdentifier& nameId, uint32_t numValues) {
-		return appendAttribute(nameId, TypeConstant::UINT32, numValues, false);
+	const Attribute & appendUInt(const Util::StringIdentifier& nameId, uint32_t arraySize=1) {
+		return appendAttribute(nameId, TypeConstant::UINT32, 1, 1, arraySize, false);
+	}
+
+	//! Add a uint32 vector attribute.
+	const Attribute & appendUIntVec(const Util::StringIdentifier& nameId, uint16_t components, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::UINT32, components, 1, arraySize, normalized);
 	}
 
 	//! Add an attribute with the given name and the given number of int values.
-	const Attribute & appendInt(const Util::StringIdentifier& nameId, uint32_t numValues) {
-		return appendAttribute(nameId, TypeConstant::INT32, numValues, false);
+	const Attribute & appendInt(const Util::StringIdentifier& nameId, uint32_t arraySize=1) {
+		return appendAttribute(nameId, TypeConstant::INT32, 1, 1, arraySize, false);
+	}
+
+	//! Add a int32 vector attribute.
+	const Attribute & appendIntVec(const Util::StringIdentifier& nameId, uint16_t components, uint32_t arraySize=1, bool normalized=false) {
+		return appendAttribute(nameId, TypeConstant::INT32, components, 1, arraySize, normalized);
 	}
 		
 	/*! Get a reference to the attribute with the corresponding name.

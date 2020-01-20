@@ -18,24 +18,25 @@ namespace Util {
 
 //------------------
 
-AttributeFormat::AttributeFormat() : nameId(0), dataType(TypeConstant::UINT8), dataSize(0), offset(0), components(0), normalized(false), internalType(0) { }
+AttributeFormat::AttributeFormat() : nameId(0), dataType(TypeConstant::UINT8), dataSize(0), offset(0), arraySize(0), vecSize(0), colSize(0), normalized(false), internalType(0) { }
 
 //------------------
 
-AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint32_t _components, bool _normalized, uint32_t _internalType, size_t _offset) :
-	nameId(_nameId), dataType(_dataType), dataSize(getNumBytes(_dataType)*_components), 
-	offset(_offset), components(_components), normalized(_normalized), internalType(_internalType) { }
+AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _vecSize, uint16_t _colSize, uint32_t _arraySize, bool _normalized, uint32_t _internalType, size_t _offset) :
+	nameId(_nameId), dataType(_dataType), dataSize(getNumBytes(_dataType)*_vecSize*_colSize*_arraySize), 
+	offset(_offset), arraySize(_arraySize), vecSize(_vecSize), colSize(_colSize), normalized(_normalized), internalType(_internalType) { }
 
 //------------------
 
-AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, size_t _offset) :
+AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint16_t _vecSize, uint16_t _colSize, uint32_t _arraySize, bool _normalized, uint32_t _internalType, size_t _offset) :
 	nameId(_nameId), dataType(_dataType), dataSize(_dataSize), 
-	offset(_offset), components(_components), normalized(_normalized), internalType(_internalType) { }
+	offset(_offset), arraySize(_arraySize), vecSize(_vecSize), colSize(_colSize), normalized(_normalized), internalType(_internalType) { }
 
 //------------------
 
 bool AttributeFormat::operator==(const AttributeFormat& o) const {
-	return nameId == o.nameId && dataType == o.dataType && dataSize == o.dataSize && offset == o.offset && components == o.components && normalized == o.normalized && internalType == o.internalType;
+	return nameId == o.nameId && dataType == o.dataType && dataSize == o.dataSize && offset == o.offset && 
+		arraySize == o.arraySize && vecSize == o.vecSize && colSize == o.colSize && normalized == o.normalized && internalType == o.internalType;
 }
 
 //------------------
@@ -43,8 +44,12 @@ bool AttributeFormat::operator==(const AttributeFormat& o) const {
 bool AttributeFormat::operator<(const AttributeFormat& other) const {
 	if(offset!=other.offset) {
 		return offset<other.offset;
-	} else if(components!=other.components) {
-		return components<other.components;
+	} else if(arraySize!=other.arraySize) {
+		return arraySize<other.arraySize;
+	} else if(vecSize!=other.vecSize) {
+		return vecSize<other.vecSize;
+	} else if(colSize!=other.colSize) {
+		return colSize<other.colSize;
 	} else if(dataSize!=other.dataSize) {
 		return dataSize<other.dataSize;
 	} else if(dataType!=other.dataType) {
@@ -62,12 +67,15 @@ bool AttributeFormat::operator<(const AttributeFormat& other) const {
 
 std::string AttributeFormat::toString() const {
 	std::ostringstream s;
-	s << nameId.toString() << " (off " << offset << "): ";	
-	s << static_cast<unsigned int>(components) << " " << getTypeString(dataType) << " (" << dataSize << " bytes)";	
-	if(normalized)
-		s << " (normalized)";	
-	if(internalType>0)
-		s << " (internalType: " << internalType << ")";	
+	s << nameId.toString() << " (off " << offset << "): ";
+	if(arraySize > 1) s << arraySize;
+	if(vecSize > 1 || colSize > 1) s << "*";
+	if(vecSize > 1) s << vecSize;
+	if(vecSize > 1 && colSize > 1) s << "x";
+	if(colSize > 1) s << colSize;
+	s << " " << getTypeString(dataType) << " (" << dataSize << " bytes)";
+	if(normalized) s << " (normalized)";
+	if(internalType>0) s << " (internal: " << internalType << ")";	
 	return s.str();
 }
 

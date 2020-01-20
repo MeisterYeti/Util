@@ -96,6 +96,9 @@ class Reference {
 		}
 		_T * operator->() const									{	return obj;	}
 		_T * get() const 										{	return obj;	}
+		_T * operator*() const 										{	return obj;	}
+		operator _T*() const 										{	return obj;	}
+		operator const _T&() const 										{	return *obj; }
 
 		bool isNull() const										{	return obj == nullptr;	}
 		bool isNotNull() const									{	return obj != nullptr;	}
@@ -144,6 +147,9 @@ class WeakPointer {
 		}
 		_T * operator->() const									{	return obj;	}
 		_T * get() const 										{	return obj;	}
+		_T * operator*() const 										{	return obj;	}
+		operator _T*() const 										{	return obj;	}
+		operator const _T&() const 										{	return *obj; }
 
 		bool isNull() const 									{	return obj == nullptr;	}
 		bool isNotNull() const									{	return obj != nullptr;	}

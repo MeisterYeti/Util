@@ -146,12 +146,13 @@ class Window : public ReferenceCounter<Window> {
 		//! Stores the size of the window's client area.
 		uint32_t width,height;
 		bool shareContext;
+		const Properties properties;
 
 		/**
 		 * Create the window and initialize a rendering context.
 		 */
 		Window(const Properties & properties) :
-			 width(properties.clientAreaWidth), height(properties.clientAreaHeight),shareContext(properties.shareContext),cursorHidden(false),activeCursor(nullptr) {
+			 width(properties.clientAreaWidth), height(properties.clientAreaHeight),shareContext(properties.shareContext), properties(properties),cursorHidden(false),activeCursor(nullptr) {
 		}
 
 		//! Allow access to members from factory.

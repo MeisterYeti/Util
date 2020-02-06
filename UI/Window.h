@@ -12,27 +12,31 @@
 #define WINDOW_H_
 
 #include "Event.h"
-#include "../References.h"
+#include "../ReferenceCounter.h"
 #include <deque>
 #include <memory>
 #include <string>
 #include <vector>
 
-typedef struct VkInstance_T* APIHandle;
-typedef struct VkSurfaceKHR_T* Surface;
+// forward declaration of vulkan handles
+typedef struct VkInstance_T* VkInstance;
+typedef struct VkSurfaceKHR_T* VkSurfaceKHR;
 
 namespace Util {
 class Bitmap;
 namespace UI {
 class Cursor;
 
+using APIHandle = VkInstance;
+using Surface = VkSurfaceKHR;
+	
 /**
  * Abstract base class for all windows.
  *
  * @author Benjamin Eikel
  * @date 2010-06-28
  */
-class Window {
+class Window : public ReferenceCounter<Window> {
 	public:
 		//! The Property struct is used to parameterize the creation of a window.
 		struct Properties{
